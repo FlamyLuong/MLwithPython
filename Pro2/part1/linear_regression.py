@@ -16,7 +16,14 @@ def closed_form(X, Y, lambda_factor):
         represents the y-axis intercept of the model and therefore X[0] = 1
     """
     # YOUR CODE HERE
-    raise NotImplementedError
+    n , d = X.shape
+
+    ## theta = ( X^T X + lambda I )^-1 X^T Y
+    I = np.identity(d)
+    #https://numpy.org/doc/stable/reference/generated/numpy.identity.html
+    #https://numpy.org/doc/stable/reference/generated/numpy.linalg.inv.html
+    theta = np.linalg.inv(X.T @ X + lambda_factor * I) @ X.T @ Y
+    return theta
 
 ### Functions which are already complete, for you to use ###
 
