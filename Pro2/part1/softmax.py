@@ -97,9 +97,19 @@ def run_gradient_descent_iteration(X, Y, theta, alpha, lambda_factor, temp_param
     Returns:
         theta - (k, d) NumPy array that is the final value of parameters theta
     """
-    #YOUR CODE HERE
-    raise NotImplementedError
+    # shape
+    k, n = theta.shape[0], X.shape[0]
 
+    # Create a sparse matrix of [[y(i) == j]]
+    M = sparse.coo_matrix(([1] * n, (Y, range(n))), shape=(k, n)).toarray()
+
+    P = compute_probabilities(X, theta, temp_parameter)
+
+    grad_theta = (-1 / (temp_parameter * n)) * ((M - P) @ X) + lambda_factor * theta
+
+    theta = theta - alpha * grad_theta
+
+    return theta
 def update_y(train_y, test_y):
     """
     Changes the old digit labels for the training and test set for the new (mod 3)
@@ -117,8 +127,10 @@ def update_y(train_y, test_y):
         test_y_mod3 - (n, ) NumPy array containing the new labels (a number between 0-2)
                     for each datapoint in the test set
     """
-    #YOUR CODE HERE
-    raise NotImplementedError
+    train_y_mod3 = np.mod(train_y, 3)
+    test_y_mod3 = np.mod(test_y, 3)
+
+    return (train_y_mod3, test_y_mod3)
 
 def compute_test_error_mod3(X, Y, theta, temp_parameter):
     """
@@ -135,8 +147,9 @@ def compute_test_error_mod3(X, Y, theta, temp_parameter):
     Returns:
         test_error - the error rate of the classifier (scalar)
     """
-    #YOUR CODE HERE
-    raise NotImplementedError
+    y_pred = get_classification(X, theta, temp_parameter)
+
+    return 1 - (np.mod(y_pred, 3) == Y).mean()
 
 def softmax_regression(X, Y, temp_parameter, alpha, lambda_factor, k, num_iterations):
     """
