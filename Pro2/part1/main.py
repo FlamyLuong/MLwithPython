@@ -8,7 +8,7 @@ from svm import *
 from softmax import *
 from features import *
 from kernel import *
-
+#new note
 #######################################################################
 # 1. Introduction
 #######################################################################
