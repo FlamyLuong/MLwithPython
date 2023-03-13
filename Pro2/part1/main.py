@@ -214,11 +214,11 @@ def run_softmax_on_MNIST_mod3(temp_parameter=1):
 
 ## Cubic Kernel ##
 # TODO: Find the 10-dimensional PCA representation of the training and test set
-# n_components = 10
-# train_x_centered, feature_means = center_data(train_x)
-# pcs = principal_components(train_x_centered)
-# train_pca10 = project_onto_PC(train_x, pcs, n_components, feature_means)
-# test_pca10 = project_onto_PC(test_x, pcs, n_components, feature_means)
+n_components = 10
+train_x_centered, feature_means = center_data(train_x)
+pcs = principal_components(train_x_centered)
+train_pca10 = project_onto_PC(train_x, pcs, n_components, feature_means)
+test_pca10 = project_onto_PC(test_x, pcs, n_components, feature_means)
 #
 # # TODO: First fill out cubicFeatures() function in features.py as the below code requires it.
 #
@@ -237,11 +237,16 @@ def run_softmax_on_MNIST_mod3(temp_parameter=1):
 
 from sklearn import svm
 from sklearn import metrics
-train_x, train_y, test_x, test_y = get_MNIST_data()
+# train_x, train_y, test_x, test_y = get_MNIST_data()
 
-clf = svm.SVC(kernel='poly', degree = 3) # taken the degree = 3
+clf = svm.SVC(random_state = 0, kernel = 'poly', degree = 3) # taken the degree = 3
+clf_rbf = svm.SVC(random_state = 0, kernel = 'rbf')
 
-clf.fit(train_x, train_y) #fitting input & output data
+clf.fit(train_pca10, train_y) #fitting input & output data
+clf_rbf.fit(train_pca10, train_y)
 
-pred = clf.predict(test_x)
-print("Accuracy:",metrics.accuracy_score(test_y, pred))
+pred = clf.predict(test_pca10)
+pred_rbf = clf_rbf.predict(test_pca10)
+
+print("Accuracy:",1.0 - metrics.accuracy_score(test_y, pred))
+print("Accuracy RBF:",1.0 - metrics.accuracy_score(test_y, pred_rbf))
