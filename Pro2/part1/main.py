@@ -8,7 +8,7 @@ from svm import *
 from softmax import *
 from features import *
 from kernel import *
-#new note
+
 #######################################################################
 # 1. Introduction
 #######################################################################
@@ -250,3 +250,4 @@ print("Test error with 18-dim PCA:", test_error)
 #
 # print("Accuracy:",1.0 - metrics.accuracy_score(test_y, pred))
 # print("Accuracy RBF:",1.0 - metrics.accuracy_score(test_y, pred_rbf))
+print('Hello world')
