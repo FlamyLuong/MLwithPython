@@ -167,13 +167,13 @@ def run_softmax_on_MNIST_mod3(temp_parameter=1):
 # TODO: First fill out the PCA functions in features.py as the below code depends on them.
 
 
-# n_components = 18
+n_components = 18
 #
 # ###Correction note:  the following 4 lines have been modified since release.
-# train_x_centered, feature_means = center_data(train_x)
-# pcs = principal_components(train_x_centered)
-# train_pca = project_onto_PC(train_x, pcs, n_components, feature_means)
-# test_pca = project_onto_PC(test_x, pcs, n_components, feature_means)
+train_x_centered, feature_means = center_data(train_x)
+pcs = principal_components(train_x_centered)
+train_pca = project_onto_PC(train_x, pcs, n_components, feature_means)
+test_pca = project_onto_PC(test_x, pcs, n_components, feature_means)
 
 # train_pca (and test_pca) is a representation of our training (and test) data
 # after projecting each example onto the first 18 principal components.
@@ -181,17 +181,17 @@ def run_softmax_on_MNIST_mod3(temp_parameter=1):
 
 # TODO: Train your softmax regression model using (train_pca, train_y)
 #       and evaluate its accuracy on (test_pca, test_y).
-# theta, cost_function_history = softmax_regression(
-#     train_pca,
-#     train_y,
-#     temp_parameter=0.5,
-#     alpha=0.3,
-#     lambda_factor=1.0e-4,
-#     k=10,
-#     num_iterations=150)
-# # plot_cost_function_over_time(cost_function_history)
-# test_error = compute_test_error(test_pca, test_y, theta, temp_parameter=1)
-# # print("Test error with 18-dim PCA:", test_error)
+theta, cost_function_history = softmax_regression(
+    train_pca,
+    train_y,
+    temp_parameter=1,
+    alpha=0.3,
+    lambda_factor=1.0e-4,
+    k=10,
+    num_iterations=150)
+# plot_cost_function_over_time(cost_function_history)
+test_error = compute_test_error(test_pca, test_y, theta, temp_parameter=1)
+print("Test error with 18-dim PCA:", test_error)
 
 # # TODO: Use the plot_PC function in features.py to produce scatterplot
 # #       of the first 100 MNIST images, as represented in the space spanned by the
@@ -214,11 +214,11 @@ def run_softmax_on_MNIST_mod3(temp_parameter=1):
 
 ## Cubic Kernel ##
 # TODO: Find the 10-dimensional PCA representation of the training and test set
-n_components = 10
-train_x_centered, feature_means = center_data(train_x)
-pcs = principal_components(train_x_centered)
-train_pca10 = project_onto_PC(train_x, pcs, n_components, feature_means)
-test_pca10 = project_onto_PC(test_x, pcs, n_components, feature_means)
+# n_components = 10
+# train_x_centered, feature_means = center_data(train_x)
+# pcs = principal_components(train_x_centered)
+# train_pca10 = project_onto_PC(train_x, pcs, n_components, feature_means)
+# test_pca10 = project_onto_PC(test_x, pcs, n_components, feature_means)
 #
 # # TODO: First fill out cubicFeatures() function in features.py as the below code requires it.
 #
@@ -235,18 +235,18 @@ test_pca10 = project_onto_PC(test_x, pcs, n_components, feature_means)
 # test_error = compute_test_error(test_cube, test_y, theta, temp_parameter=1)
 # # print("Test error with 10-dim PCA with cubic features:", test_error)
 
-from sklearn import svm
-from sklearn import metrics
-# train_x, train_y, test_x, test_y = get_MNIST_data()
-
-clf = svm.SVC(random_state = 0, kernel = 'poly', degree = 3) # taken the degree = 3
-clf_rbf = svm.SVC(random_state = 0, kernel = 'rbf')
-
-clf.fit(train_pca10, train_y) #fitting input & output data
-clf_rbf.fit(train_pca10, train_y)
-
-pred = clf.predict(test_pca10)
-pred_rbf = clf_rbf.predict(test_pca10)
-
-print("Accuracy:",1.0 - metrics.accuracy_score(test_y, pred))
-print("Accuracy RBF:",1.0 - metrics.accuracy_score(test_y, pred_rbf))
+# from sklearn import svm
+# from sklearn import metrics
+# # train_x, train_y, test_x, test_y = get_MNIST_data()
+#
+# clf = svm.SVC(random_state = 0, kernel = 'poly', degree = 3) # taken the degree = 3
+# clf_rbf = svm.SVC(random_state = 0, kernel = 'rbf')
+#
+# clf.fit(train_pca10, train_y) #fitting input & output data
+# clf_rbf.fit(train_pca10, train_y)
+#
+# pred = clf.predict(test_pca10)
+# pred_rbf = clf_rbf.predict(test_pca10)
+#
+# print("Accuracy:",1.0 - metrics.accuracy_score(test_y, pred))
+# print("Accuracy RBF:",1.0 - metrics.accuracy_score(test_y, pred_rbf))
