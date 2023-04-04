@@ -57,7 +57,7 @@ class NeuralNetwork():
     def train(self, x1, x2, y):
 
         ### Forward propagation ###
-        input_values = np.matrix([[x1],[x2]]) # 2 by 1
+        input_values = np.matrix([[x1], [x2]]) # 2 by 1
 
         # Calculate the input and activation of the hidden layer
         hidden_layer_weighted_input = self.input_to_hidden_weights.dot(input_values) + self.biases  # TODO (3 by 1 matrix)
@@ -72,7 +72,7 @@ class NeuralNetwork():
         # Compute gradients
         output_layer_error = -(y - activated_output) #dC/df(u1)
         output_derivative_vec = np.vectorize(output_layer_activation_derivative)    # Vectorize derivative of output activation
-        hidden_layer_error = np.multiply(output_derivative_vec(activated_output),self.hidden_to_output_weights.transpose())*output_layer_error #(3 by 1 matrix)
+        hidden_layer_error = np.multiply(output_derivative_vec(activated_output), self.hidden_to_output_weights.transpose())*output_layer_error #(3 by 1 matrix)
 
         ReLU_derivative_vec = np.vectorize(rectified_linear_unit_derivative)  # Vectorize ReLU derivative
         bias_gradients = np.multiply(hidden_layer_error, ReLU_derivative_vec(hidden_layer_weighted_input))  # dC/db
@@ -123,4 +123,4 @@ x = NeuralNetwork()
 x.train_neural_network()
 
 # UNCOMMENT THE LINE BELOW TO TEST YOUR NEURAL NETWORK
-# x.test_neural_network()
+x.test_neural_network()
