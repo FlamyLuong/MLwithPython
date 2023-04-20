@@ -1,7 +1,7 @@
 """Mixture model for matrix completion"""
 from typing import Tuple
 import numpy as np
-from scipy.special import logsumexp
+from scipy.special import logsumexp #important: must import in submition
 from common import GaussianMixture
 
 
@@ -18,7 +18,24 @@ def estep(X: np.ndarray, mixture: GaussianMixture) -> Tuple[np.ndarray, float]:
         float: log-likelihood of the assignment
 
     """
-    raise NotImplementedError
+    n, d = X.shape
+    mu, var, pi = mixture
+    K = mu.shape[0]
+
+    delta = X.astype(bool).astype(int)
+    f = (np.sum(X ** 2, axis=1)[:, None] + (delta @ mu.T ** 2) - 2 * (X @ mu.T)) / (2 * var)
+
+    pre_exp = (-np.sum(delta, axis=1).reshape(-1, 1) / 2.0) @ (np.log((2 * np.pi * var)).reshape(-1, 1)).T
+
+    f = pre_exp - f
+    f = f + np.log(pi + 1e-16)
+
+    logsums = logsumexp(f, axis=1).reshape(-1, 1)
+
+    log_posts = f - logsums
+    log_lh = np.sum(logsums, axis=0).item()
+
+    return np.exp(log_posts), log_lh
 
 
 
@@ -37,7 +54,25 @@ def mstep(X: np.ndarray, post: np.ndarray, mixture: GaussianMixture,
     Returns:
         GaussianMixture: the new gaussian mixture
     """
-    raise NotImplementedError
+    n, d = X.shape
+    mu_rev, _, _ = mixture
+    K = mu_rev.shape[0]
+
+    pi_rev = np.sum(post, axis=0)/n
+    delta = X.astype(bool).astype(int)
+
+    denom = post.T @ delta
+    numer = post.T @ X
+
+    update_indices = np.where(denom >= 1)
+    mu_rev[update_indices] = numer[update_indices]/denom[update_indices]
+
+    denom_var = np.sum(post*np.sum(delta, axis=1).reshape(-1,1), axis=0)
+    norms = np.sum(X**2, axis=1)[:,None] + (delta @ mu_rev.T**2) - 2*(X @ mu_rev.T)
+
+    var_rev = np.maximum(np.sum(post*norms, axis=0)/denom_var, min_variance)
+
+    return GaussianMixture(mu_rev, var_rev, pi_rev)
 
 
 def run(X: np.ndarray, mixture: GaussianMixture,
@@ -55,7 +90,20 @@ def run(X: np.ndarray, mixture: GaussianMixture,
             for all components for all examples
         float: log-likelihood of the current assignment
     """
-    raise NotImplementedError
+    old_log_lh = None
+    new_log_lh = None  # Keep track of log likelihood to check convergence
+
+    # Start the main loop
+    while old_log_lh is None or (new_log_lh - old_log_lh > 1e-6 * np.abs(new_log_lh)):
+        old_log_lh = new_log_lh
+
+        # E-step
+        post, new_log_lh = estep(X, mixture)
+
+        # M-step
+        mixture = mstep(X, post)
+
+    return mixture, post, new_log_lh
 
 
 def fill_matrix(X: np.ndarray, mixture: GaussianMixture) -> np.ndarray:
