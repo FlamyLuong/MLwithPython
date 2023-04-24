@@ -49,15 +49,15 @@ for k in range(len(K)):
     best_seed_EM[k] = np.argmax(costs_EM)
 
     # Plot kMeans and EM results
-    common.plot(X,
-                mixtures_kMeans[best_seed_kMeans[k]],
-                posts_kMeans[best_seed_kMeans[k]],
-                title="kMeans")
-
-    common.plot(X,
-                mixtures_EM[best_seed_EM[k]],
-                posts_EM[best_seed_EM[k]],
-                title="EM")
+    # common.plot(X,
+    #             mixtures_kMeans[best_seed_kMeans[k]],
+    #             posts_kMeans[best_seed_kMeans[k]],
+    #             title="kMeans")
+    #
+    # common.plot(X,
+    #             mixtures_EM[best_seed_EM[k]],
+    #             posts_EM[best_seed_EM[k]],
+    #             title="EM")
 
     # BIC score for EM
     bic[k] = common.bic(X, mixtures_EM[best_seed_EM[k]], np.max(costs_EM))
