@@ -23,8 +23,8 @@ def estep(X: np.ndarray, mixture: GaussianMixture) -> Tuple[np.ndarray, float]:
     K = mu.shape[0]
 
     delta = X.astype(bool).astype(int)
-    f = (np.sum(X ** 2, axis=1)[:, None] + (delta @ mu.T ** 2) - 2 * (X @ mu.T)) / (2 * var)
 
+    f = (np.sum(X ** 2, axis=1)[:, None] + (delta @ mu.T ** 2) - 2 * (X @ mu.T)) / (2 * var)
     pre_exp = (-np.sum(delta, axis=1).reshape(-1, 1) / 2.0) @ (np.log((2 * np.pi * var)).reshape(-1, 1)).T
 
     f = pre_exp - f
@@ -65,9 +65,10 @@ def mstep(X: np.ndarray, post: np.ndarray, mixture: GaussianMixture,
     numer = post.T @ X
 
     update_indices = np.where(denom >= 1)
-    mu_rev[update_indices] = numer[update_indices]/denom[update_indices]
 
+    mu_rev[update_indices] = numer[update_indices]/denom[update_indices]
     denom_var = np.sum(post*np.sum(delta, axis=1).reshape(-1,1), axis=0)
+
     norms = np.sum(X**2, axis=1)[:,None] + (delta @ mu_rev.T**2) - 2*(X @ mu_rev.T)
 
     var_rev = np.maximum(np.sum(post*norms, axis=0)/denom_var, min_variance)
@@ -91,17 +92,12 @@ def run(X: np.ndarray, mixture: GaussianMixture,
         float: log-likelihood of the current assignment
     """
     old_log_lh = None
-    new_log_lh = None  # Keep track of log likelihood to check convergence
+    new_log_lh = None
 
-    # Start the main loop
-    while old_log_lh is None or (new_log_lh - old_log_lh > 1e-6 * np.abs(new_log_lh)):
+    while old_log_lh is None or (new_log_lh - old_log_lh > 1e-6*np.abs(new_log_lh)):
         old_log_lh = new_log_lh
-
-        # E-step
         post, new_log_lh = estep(X, mixture)
-
-        # M-step
-        mixture = mstep(X, post)
+        mixture = mstep(X, post, mixture)
 
     return mixture, post, new_log_lh
 
@@ -116,4 +112,35 @@ def fill_matrix(X: np.ndarray, mixture: GaussianMixture) -> np.ndarray:
     Returns
         np.ndarray: a (n, d) array with completed data
     """
-    raise NotImplementedError
+    def log_gaussian(x: np.ndarray, mean: np.ndarray, var: np.ndarray) -> float:
+        """Computes the log probablity of vector x under a normal distribution
+        Args:
+            x: (d, ) array holding the vector's coordinates
+            mean: (d, ) mean of the gaussian
+            var: variance of the gaussian
+        Returns:
+            float: the log probability
+        """
+        d = len(x)
+        log_prob = -d / 2.0 * np.log(2 * np.pi * var)
+        log_prob -= 0.5 * ((x - mean) ** 2).sum() / var
+        return log_prob
+
+
+    n, d = X.shape
+    K, _ = mixture.mu.shape
+    X_pred = X.copy()
+
+    for i in range(n):
+        mask = (X[i, :] != 0)
+        mask0 = (X[i, :] == 0)
+        post = np.zeros(K)
+        for j in range(K):
+            log_likelihood = log_gaussian(X[i, mask], mixture.mu[j, mask],
+                                          mixture.var[j])
+            post[j] = np.log(mixture.p[j]) + log_likelihood
+        post = np.exp(post - logsumexp(post))
+
+        X_pred[i, mask0] = np.dot(post, mixture.mu[:, mask0])
+
+    return X_pred
