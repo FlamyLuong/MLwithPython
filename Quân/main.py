@@ -1,44 +1,27 @@
 import numpy as np
-import kmeans
-import common
-import naive_em
-import em
 
-X = np.loadtxt("toy_data.txt")
+s = np.array([[0, 0]])
+A = np.array([[1, 0]])
+B = np.array([[0, 1]])
 
-K = [1,2,3,4]
-seed = [0,1,2,3,4]
+w_ss = np.array([[-1, 0], [0, 1]])
+w_sx = np.array([[1, 0], [0, 1]])
 
-# for k in K:
-#     min_cost = np.inf
-#     for s in seed:
-#         mix_init, post_init = common.init(X,k,s)
-#         mix, post, cost = kmeans.run(X, mix_init, post_init)
-#         if cost < min_cost:
-#             min_cost = cost
-#     print('Using KMeans, min cost for K = {0} is: {1:.4f}'.format(k,min_cost))
-#     common.plot(X, mix, post, 'K-means K = {0}'.format(k))
+x1 = np.array([[1,0],[1,0]])
+x2 = np.array([[1,0], [0,1], [0,1]])
+x3 = np.array([[0,1], [1,0], [1,0]])
+
+
+s1 = (w_ss @ s.T) + (w_sx @ B.T)
+s11 = (w_ss @ s1) + (w_sx @ A.T)
+s12 = (w_ss @ s11) + (w_sx @ A.T)
+print(s11)
+print(s12)
+
+# s2 = (w_ss * s1) + (w_sx * A * B * B)
+# print(s2)
 #
-#
-# for k in K:
-#     min_loglh = np.inf
-#     for s in seed:
-#         mix_init, post_init = common.init(X,k,s)
-#         mix, post, loglh = naive_em.run(X, mix_init, post_init)
-#         if loglh < min_loglh:
-#             min_loglh = loglh
-#
-#     print('Using Naive_EM, the log likelihood for K = {0} is: {1:.4f}'.format(k,min_loglh))
-#     common.plot(X, mix, post, 'Naive_EM K = {0}'.format(k))
+# s3 = (w_ss * s2) + (w_sx * A * B * B)
+# print(s3)
 
-max_BIC = -np.inf
-max_K = 0
-for k in K:
-    for s in seed:
-        mix_init, post_init = common.init(X,k,s)
-        mix, post, loglh = naive_em.run(X, mix_init, post_init)
-        BIC = common.bic(X,mix,loglh)
-        if BIC > max_BIC:
-            max_BIC = BIC
-            max_K = k
-print('Max BIC = {0} at k = {1}'.format(max_BIC, max_K))
+
