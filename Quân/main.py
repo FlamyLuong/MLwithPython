@@ -1,9 +1,15 @@
-import numpy as np
-from numpy import linalg as LA
+import turtle as t
 
-A = np.array([[3, 0], [0.5, 2]])
-v = np.array([[2, 1]])
-w = np.array([[0, 1]])
+# t.fd(100)
+# t.shape("turtle")
 
-print(LA.eig(A))
+t.pendown()
+def square(d):
+    for i in range(4):
+        t.fd(d)
+        t.left(90)
 
+square(100)
+
+t.listen()
+t.exitonclick()
